@@ -1,22 +1,26 @@
+from urllib import response
+import requests
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List  # <-- Import List tracking
 
 app = FastAPI()
 
-class SerialData(BaseModel):
-    timestamp: str
-    value: str
-
-@app.post("/api/soil/bulk")
-async def receive_bulk_soil_data(data_list: List[SerialData]):
-    print(f" Received Bulk Soil Data Contains {len(data_list)} messages.")
-    for item in data_list:
-        if(int(item.value) <=550):
-            print("Soil Moisture Value is below threshold of 550!")
-        
-    return {"status": "success", "processed_items": len(data_list)}
+services = {}
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the API"}
+@app.get("/push")
+async def pushService(service: str,url: str):
+    if service not in services:
+        services[service] = url
+    else:
+        services[service] = url
+    return {"message": "Service URL updated successfully", "service": service, "url": url}
+@app.get("/getESPService")
+async def get_service():
+    return {"clean_host": services["esp"],"port": 443}
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8069)
+    uvicorn.run(app, host="0.0.0.0", port=8081)
