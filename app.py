@@ -19,6 +19,8 @@ async def pushService(service: str,url: str):
     return {"message": "Service URL updated successfully", "service": service, "url": url}
 @app.get("/getESPService")
 async def get_service():
+    if("esp" not in services):
+        return {"clean_host": "","port": 0}   
     return {"clean_host": services["esp"],"port": 443}
 
 if __name__ == "__main__":
